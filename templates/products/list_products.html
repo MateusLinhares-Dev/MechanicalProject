@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos{% endblock %}
+
+{% block content %}
+<h1>Lista de Produtos</h1>
+<a href="{% url "product_create" %}" class="btn btn-success mb-3">+ Adicionar Produto</a>
+
+<table class="product-table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Tipo do produto</th>
+            <th>Quantidade</th>
+            <th>Descrição</th>
+            <th>Criado em</th>
+            <th>Atualizado em</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name_product }}</td>
+            <td> {{ product.product_type.name }}</td>
+            <td>{{ product.quantity }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.created_at }}</td>
+            <td>{{ product.updated_at }}</td>
+            <td>
+                <a href="" class="btn-view">👁️</a>
+                <a href="" class="btn-edit">✏️</a>
+                <a href="" class="btn-delete">🗑️</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Nenhum produto encontrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

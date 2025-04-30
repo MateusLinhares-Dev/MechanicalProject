@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Produto{% endblock %}
+{% block breadcrumbs %}Home > Produtos > Detalhes{% endblock %}
+{% block content %}
+<h1>{{ produto.nome }}</h1>
+<p><strong>Preço:</strong> € {{ produto.preco }}</p>
+<p><strong>Categoria:</strong> {{ produto.categoria }}</p>
+<p><strong>Descrição:</strong> {{ produto.descricao }}</p>
+<a href="{% url 'product_list' %}" class="btn-back">← Voltar</a>
+{% endblock %}
