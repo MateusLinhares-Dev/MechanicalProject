@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalhes da Ordem de Serviço{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Ordem de Serviço #{{ order.id }}</h2>
+    <div>
+      <a href="{% url 'service:service_order_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Ordens de Serviço
+      </a>
+      <a href="{% url 'service:service_order_edit' order.id %}" class="btn btn-outline-secondary ms-2">
+        <i class="fas fa-edit me-2"></i>Editar
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <!-- Informações da Ordem de Serviço -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Informações da Ordem de Serviço</h5>
+          <span class="badge 
+            {% if order.status == 'aberto' %}bg-info
+            {% elif order.status == 'em_andamento' %}bg-warning
+            {% elif order.status == 'aguardando_pecas' %}bg-secondary
+            {% elif order.status == 'aguardando_aprovacao' %}bg-primary
+            {% elif order.status == 'concluido' %}bg-success
+            {% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
+            {% if order.status == 'aberto' %}
+              <i class="fas fa-folder-open me-1"></i> Aberto
+            {% elif order.status == 'em_andamento' %}
+              <i class="fas fa-tools me-1"></i> Em andamento
+            {% elif order.status == 'aguardando_pecas' %}
+              <i class="fas fa-dolly me-1"></i> Aguardando Peças
+            {% elif order.status == 'aguardando_aprovacao' %}
+              <i class="fas fa-user-check me-1"></i> Aguardando Aprovação
+            {% elif order.status == 'concluido' %}
+              <i class="fas fa-check-circle me-1"></i> Concluído
+            {% else %}
+              <i class="fas fa-times-circle me-1"></i> Cancelado
+            {% endif %}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Veículo</p>
+              <p class="fw-bold">{{ order.vehicle.brand.name }} {{ order.vehicle.vehicle_name }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Proprietário</p>
+              <p class="fw-bold">{{ order.vehicle.owner.name }}</p>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Data de Início</p>
+              <p class="fw-bold">
+                <i class="far fa-calendar-alt me-1"></i>
+                {{ order.start_date|date:"d/m/Y H:i" }}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Data de Conclusão</p>
+              <p class="fw-bold">
+                {% if order.end_date %}
+                  <i class="far fa-calendar-check me-1"></i>
+                  {{ order.end_date|date:"d/m/Y H:i" }}
+                {% else %}
+                  <span class="text-muted">Não concluído</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          
+          {% if order.schedule %}
+          <div class="row mb-3">
+            <div class="col-12">
+              <p class="text-muted mb-1">Agendamento Relacionado</p>
+              <p class="fw-bold">
+                <a href="{% url 'service:schedule_detail' order.schedule.id %}" class="text-decoration-none">
+                  <i class="fas fa-calendar me-1"></i>
+                  {{ order.schedule.scheduled_date|date:"d/m/Y H:i" }} - {{ order.schedule.service_type.name }}
+                </a>
+              </p>
+            </div>
+          </div>
+          {% endif %}
+          
+          {% if order.diagnosis %}
+          <div class="row">
+            <div class="col-12">
+              <p class="text-muted mb-1">Diagnóstico</p>
+              <p>{{ order.diagnosis }}</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Serviços Realizados -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Serviços Realizados</h5>
+          <a href="{% url 'service:add_service_item' order.id %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus-circle me-1"></i>Adicionar Serviço
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th>Serviço</th>
+                  <th>Descrição</th>
+                  <th class="text-end">Preço</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in service_items %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <span class="me-2">
+                        <i class="fas fa-tools text-secondary"></i>
+                      </span>
+                      <span>{{ item.service_type.name }}</span>
+                    </div>
+                  </td>
+                  <td>{{ item.description|default:"--" }}</td>
+                  <td class="text-end">R$ {{ item.price }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center py-3">
+                    <p class="text-muted mb-0">Nenhum serviço adicionado</p>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% if service_items %}
+                <tr class="bg-light">
+                  <td colspan="2" class="text-end fw-bold">Total de Serviços:</td>
+                  <td class="text-end fw-bold">R$ {{ services_total }}</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Peças Utilizadas -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Peças Utilizadas</h5>
+          <a href="{% url 'service:add_part_usage' order.id %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus-circle me-1"></i>Adicionar Peça
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th>Peça</th>
+                  <th>Quantidade</th>
+                  <th>Preço Unitário</th>
+                  <th class="text-end">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for part in parts_used %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <span class="me-2">
+                        <i class="fas fa-cog text-secondary"></i>
+                      </span>
+                      <span>{{ part.product.name_product }}</span>
+                    </div>
+                  </td>
+                  <td>{{ part.quantity }}</td>
+                  <td>R$ {{ part.unit_price }}</td>
+                  <td class="text-end">R$ {{ part.total_price }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-3">
+                    <p class="text-muted mb-0">Nenhuma peça adicionada</p>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% if parts_used %}
+                <tr class="bg-light">
+                  <td colspan="3" class="text-end fw-bold">Total de Peças:</td>
+                  <td class="text-end fw-bold">R$ {{ parts_total }}</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Geral -->
+      {% if service_items or parts_used %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8 text-end">
+              <h5 class="fw-bold">Total Geral:</h5>
+            </div>
+            <div class="col-md-4 text-end">
+              <h5 class="fw-bold">R$ {{ grand_total }}</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+      <!-- Detalhes do Veículo -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Detalhes do Veículo</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <span class="display-1 text-secondary">
+              <i class="fas fa-car"></i>
+            </span>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Marca/Modelo</p>
+            <p class="fw-bold">{{ order.vehicle.brand.name }} {{ order.vehicle.vehicle_name }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Placa</p>
+            <p class="fw-bold">{{ order.vehicle.license_plate }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Ano</p>
+            <p class="fw-bold">{{ order.vehicle.year }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Quilometragem</p>
+            <p class="fw-bold">{{ order.vehicle.mileage }} km</p>
+          </div>
+          
+          <div class="text-center mt-4">
+            <a href="{% url 'vehicle:vehicle_detail' order.vehicle.id %}" class="btn btn-outline-primary">
+              <i class="fas fa-info-circle me-2"></i>Ver Detalhes do Veículo
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ações Rápidas -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Ações Rápidas</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{% url 'service:add_service_item' order.id %}" class="btn btn-outline-primary">
+              <i class="fas fa-tools me-2"></i>Adicionar Serviço
+            </a>
+            <a href="{% url 'service:add_part_usage' order.id %}" class="btn btn-outline-primary">
+              <i class="fas fa-cog me-2"></i>Adicionar Peça
+            </a>
+            
+            {% if order.status != 'concluido' %}
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#completeOrderModal">
+              <i class="fas fa-check-circle me-2"></i>Concluir Ordem de Serviço
+            </button>
+            {% endif %}
+            
+            <a href="{% url 'service:service_order_delete' order.id %}" class="btn btn-outline-danger">
+              <i class="fas fa-trash-alt me-2"></i>Excluir Ordem de Serviço
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Concluir Ordem de Serviço -->
+<div class="modal fade" id="completeOrderModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Concluir Ordem de Serviço</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{% url 'service:service_order_edit' order.id %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p>Tem certeza que deseja concluir esta ordem de serviço?</p>
+          <input type="hidden" name="status" value="concluido">
+          <input type="hidden" name="vehicle" value="{{ order.vehicle.id }}">
+          <input type="hidden" name="start_date" value="{{ order.start_date|date:'Y-m-d\TH:i' }}">
+          {% if order.schedule %}
+          <input type="hidden" name="schedule" value="{{ order.schedule.id }}">
+          {% endif %}
+          {% if order.diagnosis %}
+          <input type="hidden" name="diagnosis" value="{{ order.diagnosis }}">
+          {% endif %}
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="createMaintenanceRecord" name="create_maintenance_record" checked>
+            <label class="form-check-label" for="createMaintenanceRecord">
+              Criar registro de manutenção
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Concluir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}Editar Produto{% endblock %}
-{% block breadcrumbs %}Home > Produtos > Editar{% endblock %}
 {% block content %}
-<h1>Editar Produto</h1>
+<h1>Editar {{ product.name_product }}</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form|crispy }}
     <button type="submit" class="btn-save">💾 Atualizar</button>
-    <a href="{% url 'product_list' %}" class="btn-cancel">Cancelar</a>
+    <a href="{% url 'product:product_list' %}" class="btn-cancel">Cancelar</a>
 </form>
 {% endblock %}

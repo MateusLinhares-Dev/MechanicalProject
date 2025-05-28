@@ -1,0 +1,45 @@
+.notification-container-stock-low {
+    position: fixed;
+    bottom: 700px;
+    left: 1500px;
+    z-index: 9999;
+    width: 500px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.notification-container-stock-low.active {
+    opacity: 1;
+}
+
+.notification-low {
+    position: relative;
+    width: 260px;
+    background-color: #443838;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    opacity: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: none;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.notification-low.visible {
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+.notification-message-product {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.notification-message-product.active {
+    background-color: red;
+    border-left: rgb(73, 2, 2);
+}

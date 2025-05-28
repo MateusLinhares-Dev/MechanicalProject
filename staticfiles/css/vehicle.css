@@ -1,0 +1,47 @@
+/* Estilo para o grupo de botões */
+.btn-group a {
+  margin-left: 6px;
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+/* Detalhes - botão azul */
+.btn-outline-primary {
+  border: 1px solid #0d6efd;
+  color: #0d6efd;
+  background-color: #f0f8ff;
+}
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Editar - botão cinza */
+.btn-outline-secondary {
+  border: 1px solid #6c757d;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* Excluir - botão vermelho */
+.btn-outline-danger {
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  background-color: #fff0f0;
+}
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+ .color-dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+  }

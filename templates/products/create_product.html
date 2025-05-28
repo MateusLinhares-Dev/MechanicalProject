@@ -8,6 +8,6 @@
     {% csrf_token %}
     {{ new_product_form|crispy }}
     <button type="submit" class="btn-save">💾 Guardar</button>
-    <a href="{% url 'product_list' %}" class="btn-cancel">Cancelar</a>
+    <a href="{% url 'product:product_list' %}" class="btn-cancel">Cancelar</a>
 </form>
 {% endblock %}

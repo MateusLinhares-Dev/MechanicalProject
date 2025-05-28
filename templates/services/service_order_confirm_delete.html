@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Confirmar Exclusão</h2>
+    <a href="{% url 'service:service_order_list' %}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i>Voltar para Ordens de Serviço
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4 text-center">
+      <div class="mb-4">
+        <span class="display-1 text-danger">
+          <i class="fas fa-exclamation-triangle"></i>
+        </span>
+      </div>
+      
+      <h4 class="mb-3">Tem certeza que deseja excluir esta ordem de serviço?</h4>
+      
+      <div class="alert alert-warning mb-4">
+        <p class="mb-1"><strong>Ordem de Serviço:</strong> #{{ order.id }}</p>
+        <p class="mb-1"><strong>Veículo:</strong> {{ order.vehicle.brand.name }} {{ order.vehicle.vehicle_name }}</p>
+        <p class="mb-1"><strong>Cliente:</strong> {{ order.vehicle.owner.name }}</p>
+        <p class="mb-1"><strong>Data de Início:</strong> {{ order.start_date|date:"d/m/Y H:i" }}</p>
+        <p class="mb-0"><strong>Valor Total:</strong> R$ {{ order.total_cost }}</p>
+      </div>
+      
+      <p class="text-muted mb-4">Esta ação não poderá ser desfeita. Todos os serviços e peças relacionados a esta ordem de serviço serão excluídos.</p>
+      
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-trash-alt me-2"></i>Confirmar Exclusão
+        </button>
+        <a href="{% url 'service:service_order_detail' order.id %}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

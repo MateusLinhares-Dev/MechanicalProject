@@ -62,6 +62,11 @@ class BrandTypes(models.Model):
         return self.name
 
 class Vehicle(models.Model):
+    STATUS_CHOICES = (
+        ('ativo', 'Ativo'),
+        ('em_servico', 'Em Manutenção'),
+    )
+    
     vehicle_type = models.ForeignKey(
         VehiclesType,
         on_delete=models.PROTECT,
@@ -99,6 +104,13 @@ class Vehicle(models.Model):
         related_name='vehicles',
         verbose_name='Proprietário',
     )
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='ativo',
+        verbose_name='Status'
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -115,4 +127,4 @@ class Vehicle(models.Model):
         verbose_name_plural = 'Veículos'
 
     def __str__(self):
-        return self.license_plate
+        return self.vehicle_name

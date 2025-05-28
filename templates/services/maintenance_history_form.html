@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">{{ title }}</h2>
+    <a href="{% url 'service:maintenance_history_list' %}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i>Voltar para Histórico de Manutenção
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <form method="POST" class="row g-3">
+        {% csrf_token %}
+        
+        <div class="col-md-6">
+          <label for="{{ form.vehicle.id_for_label }}" class="form-label">{{ form.vehicle.label }}</label>
+          {{ form.vehicle }}
+          {% if form.vehicle.errors %}
+            <div class="text-danger">{{ form.vehicle.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+          <label for="{{ form.maintenance_date.id_for_label }}" class="form-label">{{ form.maintenance_date.label }}</label>
+          {{ form.maintenance_date }}
+          {% if form.maintenance_date.errors %}
+            <div class="text-danger">{{ form.maintenance_date.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+          <label for="{{ form.mileage.id_for_label }}" class="form-label">{{ form.mileage.label }}</label>
+          {{ form.mileage }}
+          {% if form.mileage.errors %}
+            <div class="text-danger">{{ form.mileage.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+          <label for="{{ form.service_order.id_for_label }}" class="form-label">{{ form.service_order.label }}</label>
+          {{ form.service_order }}
+          {% if form.service_order.errors %}
+            <div class="text-danger">{{ form.service_order.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-12">
+          <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <div class="text-danger">{{ form.description.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+          <label for="{{ form.next_maintenance_date.id_for_label }}" class="form-label">{{ form.next_maintenance_date.label }}</label>
+          {{ form.next_maintenance_date }}
+          {% if form.next_maintenance_date.errors %}
+            <div class="text-danger">{{ form.next_maintenance_date.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+          <label for="{{ form.next_maintenance_mileage.id_for_label }}" class="form-label">{{ form.next_maintenance_mileage.label }}</label>
+          {{ form.next_maintenance_mileage }}
+          {% if form.next_maintenance_mileage.errors %}
+            <div class="text-danger">{{ form.next_maintenance_mileage.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-12 mt-4">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Salvar
+          </button>
+          <a href="{% url 'service:maintenance_history_list' %}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Estilizar os campos do formulário
+    const formSelects = document.querySelectorAll('select');
+    formSelects.forEach(select => {
+      select.classList.add('form-select');
+    });
+    
+    const formInputs = document.querySelectorAll('input');
+    formInputs.forEach(input => {
+      input.classList.add('form-control');
+    });
+    
+    const formTextareas = document.querySelectorAll('textarea');
+    formTextareas.forEach(textarea => {
+      textarea.classList.add('form-control');
+    });
+    
+    // Auto-preencher a quilometragem quando o veículo é selecionado
+    const vehicleSelect = document.getElementById('{{ form.vehicle.id_for_label }}');
+    const mileageInput = document.getElementById('{{ form.mileage.id_for_label }}');
+    
+    if (vehicleSelect && mileageInput && !mileageInput.value) {
+      vehicleSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.dataset.mileage) {
+          mileageInput.value = selectedOption.dataset.mileage;
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

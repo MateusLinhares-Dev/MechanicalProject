@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Registro de Manutenção{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Detalhes do Registro de Manutenção</h2>
+    <a href="{% url 'service:maintenance_history_list' %}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i>Voltar para Histórico de Manutenção
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Informações da Manutenção</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Veículo</p>
+              <p class="fw-bold">{{ history.vehicle.brand.name }} {{ history.vehicle.vehicle_name }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Proprietário</p>
+              <p class="fw-bold">{{ history.vehicle.owner.name }}</p>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Data da Manutenção</p>
+              <p class="fw-bold">
+                <i class="far fa-calendar-alt me-1"></i>
+                {{ history.maintenance_date|date:"d/m/Y H:i" }}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Quilometragem</p>
+              <p class="fw-bold">
+                <i class="fas fa-tachometer-alt me-1"></i>
+                {{ history.mileage }} km
+              </p>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Próxima Manutenção (Data)</p>
+              <p class="fw-bold">
+                {% if history.next_maintenance_date %}
+                  <i class="far fa-calendar-alt me-1"></i>
+                  {{ history.next_maintenance_date|date:"d/m/Y" }}
+                {% else %}
+                  <span class="text-muted">Não definida</span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Próxima Manutenção (Quilometragem)</p>
+              <p class="fw-bold">
+                {% if history.next_maintenance_mileage %}
+                  <i class="fas fa-tachometer-alt me-1"></i>
+                  {{ history.next_maintenance_mileage }} km
+                {% else %}
+                  <span class="text-muted">Não definida</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          
+          {% if history.service_order %}
+          <div class="row mb-3">
+            <div class="col-12">
+              <p class="text-muted mb-1">Ordem de Serviço Relacionada</p>
+              <p class="fw-bold">
+                <a href="{% url 'service:service_order_detail' history.service_order.id %}" class="text-decoration-none">
+                  <i class="fas fa-file-invoice me-1"></i>
+                  OS #{{ history.service_order.id }} - {{ history.service_order.get_status_display }}
+                </a>
+              </p>
+            </div>
+          </div>
+          {% endif %}
+          
+          <div class="row">
+            <div class="col-12">
+              <p class="text-muted mb-1">Descrição da Manutenção</p>
+              <p>{{ history.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Detalhes do Veículo</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <span class="display-1 text-secondary">
+              <i class="fas fa-car"></i>
+            </span>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Marca/Modelo</p>
+            <p class="fw-bold">{{ history.vehicle.brand.name }} {{ history.vehicle.vehicle_name }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Placa</p>
+            <p class="fw-bold">{{ history.vehicle.license_plate }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Ano</p>
+            <p class="fw-bold">{{ history.vehicle.year }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <p class="text-muted mb-1">Quilometragem Atual</p>
+            <p class="fw-bold">{{ history.vehicle.mileage }} km</p>
+          </div>
+          
+          <div class="text-center mt-4">
+            <a href="{% url 'vehicle:vehicle_detail' history.vehicle.id %}" class="btn btn-outline-primary">
+              <i class="fas fa-info-circle me-2"></i>Ver Detalhes do Veículo
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

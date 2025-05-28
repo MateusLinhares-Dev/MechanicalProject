@@ -1,29 +1,47 @@
 {% load static %}
-<div class="header-top">
+<div class="header-top d-flex justify-content-between align-items-center px-3" style="height: 60px;">
     <div><img class="img-logo" src="{% static "images/image.png" %}" alt=""></div>
     
     <div class="breadcrumbs">
         {% block breadcrumbs %}
         <nav>
-          <a href="{% url 'home' %}">Home</a> &gt; {{ page_title }}
+            <a href="{% url 'home' %}">Home</a> &gt; {{ page_title }}
         </nav>
-      {% endblock %}
+        {% endblock %}
     </div>
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <i class="fas fa-user"></i> Conta
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Perfil</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Configuração</a></li>
-        </ul>
-      </div>
+
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user"></i> Conta
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Perfil</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Configuração</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
 <div class="header-bottom">
     <nav class="nav justify-content-center">
         <a class="nav-link" href="">Clientes</a>
-        <a class="nav-link" href="{% url "product_list" %}">Produtos</a>
-        <a class="nav-link" href="">Veiculos</a>
+        <a class="nav-link" href="{% url "product:product_list" %}">Produtos</a>
+        <a class="nav-link" href="{% url "vehicle:vehicles_list" %}">Veiculos</a>
+        
+        <!-- Menu dropdown para Serviços -->
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Serviços
+            </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url "service:schedule_list" %}">Agendamentos</a></li>
+                <li><a class="dropdown-item" href="{% url "service:service_type_list" %}">Tipos de Serviços</a></li>
+                <li><a class="dropdown-item" href="{% url "service:service_order_list" %}">Ordens de Serviço</a></li>
+                <li><a class="dropdown-item" href="{% url "service:maintenance_history_list" %}">Histórico de Manutenção</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url "service:reports_dashboard" %}">Relatórios</a></li>
+            </ul>
+        </div>
+        
         <a class="nav-link" href="">Saidas</a>
         <a class="nav-link" href="">Entradas</a>
         <a class="nav-link" href="">Fornecedores</a>

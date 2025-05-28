@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard de Relatórios{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Dashboard de Relatórios</h2>
+    <div>
+      <div class="btn-group">
+        <a href="{% url 'service:services_report' %}" class="btn btn-outline-primary">
+          <i class="fas fa-tools me-2"></i>Relatório de Serviços
+        </a>
+        <a href="{% url 'service:parts_usage_report' %}" class="btn btn-outline-primary">
+          <i class="fas fa-cogs me-2"></i>Relatório de Peças
+        </a>
+        <a href="{% url 'service:vehicles_maintenance_report' %}" class="btn btn-outline-primary">
+          <i class="fas fa-car me-2"></i>Relatório de Manutenção
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estatísticas Gerais -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Total de Veículos</h6>
+              <h3 class="fw-bold mb-0">{{ total_vehicles }}</h3>
+            </div>
+            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+              <i class="fas fa-car fa-2x text-primary"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Total de Serviços</h6>
+              <h3 class="fw-bold mb-0">{{ total_services }}</h3>
+            </div>
+            <div class="rounded-circle bg-info bg-opacity-10 p-3">
+              <i class="fas fa-tools fa-2x text-info"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Serviços Concluídos</h6>
+              <h3 class="fw-bold mb-0">{{ total_completed }}</h3>
+            </div>
+            <div class="rounded-circle bg-success bg-opacity-10 p-3">
+              <i class="fas fa-check-circle fa-2x text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Em Andamento</h6>
+              <h3 class="fw-bold mb-0">{{ total_in_progress }}</h3>
+            </div>
+            <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+              <i class="fas fa-spinner fa-2x text-warning"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taxa de Conclusão -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Taxa de Conclusão de Serviços</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="position-relative" style="width: 200px; height: 200px;">
+              <div class="position-absolute top-50 start-50 translate-middle text-center">
+                <h3 class="fw-bold mb-0">{{ completion_rate|floatformat:1 }}%</h3>
+                <p class="text-muted mb-0">Concluídos</p>
+              </div>
+              <canvas id="completionRateChart" width="200" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Serviços por Mês</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="monthlyServicesChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Peças mais utilizadas -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Peças Mais Utilizadas</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="bg-light">
+                <tr>
+                  <th>Peça</th>
+                  <th class="text-end">Quantidade Utilizada</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for part in top_parts %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <span class="me-2">
+                        <i class="fas fa-cog text-secondary"></i>
+                      </span>
+                      <span>{{ part.product__name_product }}</span>
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    <span class="badge bg-primary rounded-pill">{{ part.total_usage }}</span>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center py-3">
+                    <p class="text-muted mb-0">Nenhuma peça utilizada ainda</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Taxa de Conclusão
+    const completionRateCtx = document.getElementById('completionRateChart').getContext('2d');
+    const completionRate = {{ completion_rate|floatformat:1 }};
+    const completionRateChart = new Chart(completionRateCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Concluídos', 'Pendentes'],
+        datasets: [{
+          data: [completionRate, 100 - completionRate],
+          backgroundColor: ['#198754', '#e9ecef'],
+          borderWidth: 0,
+          cutout: '75%'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            enabled: false
+          }
+        }
+      }
+    });
+
+    // Serviços por Mês
+    const monthlyServicesCtx = document.getElementById('monthlyServicesChart').getContext('2d');
+    const monthlyServicesChart = new Chart(monthlyServicesCtx, {
+      type: 'bar',
+      data: {
+        labels: [
+          {% for service in monthly_services reversed %}
+            '{{ service.month }}/{{ service.year }}'{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        datasets: [{
+          label: 'Serviços',
+          data: [
+            {% for service in monthly_services reversed %}
+              {{ service.count }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ],
+          backgroundColor: '#0d6efd',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

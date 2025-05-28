@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">{{ title }}</h2>
+    <a href="{% url 'service:service_order_detail' order.id %}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i>Voltar para Detalhes da OS
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <form method="POST" class="row g-3">
+        {% csrf_token %}
+        
+        <div class="col-md-6">
+          <label for="{{ form.product.id_for_label }}" class="form-label">{{ form.product.label }}</label>
+          {{ form.product }}
+          {% if form.product.errors %}
+            <div class="text-danger">{{ form.product.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-3">
+          <label for="{{ form.quantity.id_for_label }}" class="form-label">{{ form.quantity.label }}</label>
+          {{ form.quantity }}
+          {% if form.quantity.errors %}
+            <div class="text-danger">{{ form.quantity.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-md-3">
+          <label for="{{ form.unit_price.id_for_label }}" class="form-label">{{ form.unit_price.label }}</label>
+          {{ form.unit_price }}
+          {% if form.unit_price.errors %}
+            <div class="text-danger">{{ form.unit_price.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="col-12 mt-4">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Adicionar Peça
+          </button>
+          <a href="{% url 'service:service_order_detail' order.id %}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Estilizar os campos do formulário
+    const formSelects = document.querySelectorAll('select');
+    formSelects.forEach(select => {
+      select.classList.add('form-select');
+    });
+    
+    const formInputs = document.querySelectorAll('input');
+    formInputs.forEach(input => {
+      input.classList.add('form-control');
+    });
+    
+    // Auto-preencher o preço quando o produto é selecionado
+    const productSelect = document.getElementById('{{ form.product.id_for_label }}');
+    const unitPriceInput = document.getElementById('{{ form.unit_price.id_for_label }}');
+    
+    if (productSelect && unitPriceInput) {
+      productSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.dataset.price) {
+          unitPriceInput.value = selectedOption.dataset.price;
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

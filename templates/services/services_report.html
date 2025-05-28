@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Relatório de Serviços{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Relatório de Serviços</h2>
+    <div>
+      <a href="{% url 'service:reports_dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" action="" class="row g-3">
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data inicial" name="date_from" value="{{ request.GET.date_from }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data final" name="date_to" value="{{ request.GET.date_to }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select border-0 bg-light" name="status">
+            <option value="">Todos os status</option>
+            {% for status_code, status_name in status_choices %}
+              <option value="{{ status_code }}" {% if request.GET.status == status_code %}selected{% endif %}>{{ status_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-filter me-2"></i>Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Receita Total</h6>
+              <h3 class="fw-bold mb-0">R$ {{ total_revenue|floatformat:2 }}</h3>
+            </div>
+            <div class="rounded-circle bg-success bg-opacity-10 p-3">
+              <i class="fas fa-dollar-sign fa-2x text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Custo Médio por Serviço</h6>
+              <h3 class="fw-bold mb-0">R$ {{ avg_service_cost|floatformat:2 }}</h3>
+            </div>
+            <div class="rounded-circle bg-info bg-opacity-10 p-3">
+              <i class="fas fa-chart-line fa-2x text-info"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de serviços -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Serviços Realizados</h5>
+      <button class="btn btn-sm btn-outline-primary" onclick="exportTableToCSV('relatorio_servicos.csv')">
+        <i class="fas fa-download me-2"></i>Exportar CSV
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="servicesTable">
+          <thead class="bg-light">
+            <tr>
+              <th class="border-0 ps-3">Nº OS</th>
+              <th class="border-0">Veículo</th>
+              <th class="border-0">Cliente</th>
+              <th class="border-0">Data</th>
+              <th class="border-0">Status</th>
+              <th class="border-0 text-end pe-3">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for service in services %}
+            <tr>
+              <td class="ps-3">
+                <a href="{% url 'service:service_order_detail' service.id %}" class="text-decoration-none">
+                  OS #{{ service.id }}
+                </a>
+              </td>
+              <td>{{ service.vehicle.brand.name }} {{ service.vehicle.vehicle_name }}</td>
+              <td>{{ service.vehicle.owner.name }}</td>
+              <td>{{ service.start_date|date:"d/m/Y" }}</td>
+              <td>
+                <span class="badge 
+                  {% if service.status == 'aberto' %}bg-info
+                  {% elif service.status == 'em_andamento' %}bg-warning
+                  {% elif service.status == 'aguardando_pecas' %}bg-secondary
+                  {% elif service.status == 'aguardando_aprovacao' %}bg-primary
+                  {% elif service.status == 'concluido' %}bg-success
+                  {% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
+                  {% if service.status == 'aberto' %}
+                    Aberto
+                  {% elif service.status == 'em_andamento' %}
+                    Em andamento
+                  {% elif service.status == 'aguardando_pecas' %}
+                    Aguardando Peças
+                  {% elif service.status == 'aguardando_aprovacao' %}
+                    Aguardando Aprovação
+                  {% elif service.status == 'concluido' %}
+                    Concluído
+                  {% else %}
+                    Cancelado
+                  {% endif %}
+                </span>
+              </td>
+              <td class="text-end pe-3">R$ {{ service.total_cost }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-search fa-3x mb-3"></i>
+                  <p>Nenhum serviço encontrado com os filtros selecionados.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function exportTableToCSV(filename) {
+    const table = document.getElementById('servicesTable');
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+      const row = [], cols = rows[i].querySelectorAll('td, th');
+      
+      for (let j = 0; j < cols.length; j++) {
+        // Limpar o texto (remover espaços extras e quebras de linha)
+        let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').trim();
+        // Escapar aspas duplas
+        text = text.replace(/"/g, '""');
+        // Adicionar aspas ao redor do texto
+        row.push('"' + text + '"');
+      }
+      
+      csv.push(row.join(','));
+    }
+    
+    // Download CSV
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    
+    if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, filename);
+    } else {
+      const link = document.createElement('a');
+      if (link.download !== undefined) {
+        // Browsers that support HTML5 download attribute
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  }
+</script>
+{% endblock %}

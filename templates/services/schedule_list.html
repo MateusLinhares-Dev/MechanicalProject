@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agendamentos de Serviços{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Agendamentos de Serviços</h2>
+    <a href="{% url 'service:schedule_create' %}" class="btn btn-primary">
+      <i class="fas fa-calendar-plus me-2"></i>Novo Agendamento
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" action="" class="row g-3">
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data inicial" name="date_from">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data final" name="date_to">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select border-0 bg-light" name="status">
+            <option value="">Todos os status</option>
+            {% for status_code, status_name in status_choices %}
+              <option value="{{ status_code }}">{{ status_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sistema de notificação -->
+  <div id="robot-notification-container" class="robot-notification-container">
+    <div id="robot-arm" class="robot-arm">
+      <div id="robot-hand" class="robot-hand"></div>
+    </div>
+    <div id="robot-notification" class="robot-notification">
+      <div id="robot-message" class="robot-message"></div>
+    </div>
+  </div>
+
+  <!-- Calendário de agendamentos -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Calendário de Agendamentos</h5>
+      <div>
+        <button id="btnCalendarInfo" class="btn btn-sm btn-outline-info" title="Informações de uso">
+          <i class="fas fa-info-circle"></i>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="calendar"></div>
+    </div>
+  </div>
+  
+  <!-- Modal de informações do calendário -->
+  <div class="modal fade" id="calendarInfoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Como usar o calendário</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex align-items-center">
+              <span class="badge bg-info rounded-pill me-3">1</span>
+              <span>Clique em uma data para agendar um novo serviço</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+              <span class="badge bg-info rounded-pill me-3">2</span>
+              <span>Clique em um evento para ver detalhes do agendamento</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+              <span class="badge bg-info rounded-pill me-3">3</span>
+              <span>Use os botões de navegação para mudar o mês ou semana</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+              <span class="badge bg-info rounded-pill me-3">4</span>
+              <span>Alterne entre visualizações de mês, semana e dia</span>
+            </li>
+          </ul>
+          
+          <div class="mt-3">
+            <h6>Legenda de cores:</h6>
+            <div class="d-flex flex-wrap">
+              <div class="me-3 mb-2">
+                <span class="badge bg-info rounded-pill">&nbsp;</span> Agendado
+              </div>
+              <div class="me-3 mb-2">
+                <span class="badge bg-warning rounded-pill">&nbsp;</span> Em andamento
+              </div>
+              <div class="me-3 mb-2">
+                <span class="badge bg-success rounded-pill">&nbsp;</span> Concluído
+              </div>
+              <div class="me-3 mb-2">
+                <span class="badge bg-danger rounded-pill">&nbsp;</span> Cancelado
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de agendamentos -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="border-0 ps-3">Veículo</th>
+              <th class="border-0">Cliente</th>
+              <th class="border-0">Serviço</th>
+              <th class="border-0">Data Agendada</th>
+              <th class="border-0">Status</th>
+              <th class="border-0 text-end pe-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for schedule in schedules %}
+            <tr>
+              <td class="ps-3">
+                <div class="d-flex align-items-center">
+                  <span class="me-2">
+                    <i class="fas fa-car text-secondary"></i>
+                  </span>
+                  <span>{{ schedule.vehicle.brand.name }} {{ schedule.vehicle.vehicle_name }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2" style="width: 36px; height: 36px;">
+                    <strong>{{ schedule.vehicle.owner.name|first }}</strong>
+                  </div>
+                  <span>{{ schedule.vehicle.owner.name }}</span>
+                </div>
+              </td>
+              <td>{{ schedule.service_type.name }}</td>
+              <td>
+                <span class="badge bg-light text-dark border">
+                  <i class="far fa-calendar-alt me-1"></i>
+                  {{ schedule.scheduled_date|date:"d/m/Y" }}
+                </span>
+                <span class="badge bg-light text-dark border">
+                  <i class="far fa-clock me-1"></i>
+                  {{ schedule.scheduled_date|date:"H:i" }}
+                </span>
+              </td>
+              <td>
+                <span class="badge 
+                  {% if schedule.status == 'agendado' %}bg-info
+                  {% elif schedule.status == 'em_andamento' %}bg-warning
+                  {% elif schedule.status == 'concluido' %}bg-success
+                  {% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
+                  {% if schedule.status == 'agendado' %}
+                    <i class="fas fa-calendar-check me-1"></i> Agendado
+                  {% elif schedule.status == 'em_andamento' %}
+                    <i class="fas fa-tools me-1"></i> Em andamento
+                  {% elif schedule.status == 'concluido' %}
+                    <i class="fas fa-check-circle me-1"></i> Concluído
+                  {% else %}
+                    <i class="fas fa-times-circle me-1"></i> Cancelado
+                  {% endif %}
+                </span>
+              </td>
+              <td class="text-end pe-3">
+                <div class="btn-group">
+                  <a href="{% url 'service:schedule_detail' schedule.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalhes">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{% url 'service:schedule_edit' schedule.id %}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="{% url 'service:service_order_create' %}?schedule_id={{ schedule.id }}" class="btn btn-sm btn-outline-success" title="Criar Ordem de Serviço">
+                    <i class="fas fa-file-invoice"></i>
+                  </a>
+                  <a href="{% url 'service:schedule_delete' schedule.id %}" class="btn btn-sm btn-outline-danger" title="Cancelar">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="far fa-calendar-times fa-3x mb-3"></i>
+                  <p>Nenhum agendamento encontrado.</p>
+                  <a href="{% url 'service:schedule_create' %}" class="btn btn-sm btn-primary">Criar o primeiro agendamento</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/style_robot.css' %}">
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'pt-br',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      events: [
+        {% for schedule in schedules %}
+        {
+          title: '{{ schedule.service_type.name }} - {{ schedule.vehicle.vehicle_name }}',
+          start: '{{ schedule.scheduled_date|date:"Y-m-d" }}T{{ schedule.scheduled_date|date:"H:i:s" }}',
+          url: '{% url "service:schedule_detail" schedule.id %}',
+          backgroundColor: '{% if schedule.status == "agendado" %}#0dcaf0{% elif schedule.status == "em_andamento" %}#ffc107{% elif schedule.status == "concluido" %}#198754{% else %}#dc3545{% endif %}',
+          borderColor: '{% if schedule.status == "agendado" %}#0dcaf0{% elif schedule.status == "em_andamento" %}#ffc107{% elif schedule.status == "concluido" %}#198754{% else %}#dc3545{% endif %}'
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      eventClick: function(info) {
+        if (info.event.url) {
+          window.location.href = info.event.url;
+          return false;
+        }
+      },
+      dateClick: function(info) {
+        // Redirecionar para o formulário de agendamento rápido com a data selecionada
+        window.location.href = "{% url 'service:schedule_create' %}?selected_date=" + info.dateStr;
+      }
+    });
+    calendar.render();
+  });
+</script>
+{% endblock %}

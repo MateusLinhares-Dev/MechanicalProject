@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Veiculo{% endblock %}
+{% block content %}
+<h1>Editar {{ vehicle.vehicle_name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn-save">💾 Atualizar</button>
+    <a href="{% url 'vehicle:vehicles_list' %}" class="btn-cancel">Cancelar</a>
+</form>
+{% endblock %}

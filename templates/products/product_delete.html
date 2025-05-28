@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+<form method="post" onsubmit="return confirm('Tem a certeza que deseja eliminar este produto?');">
+    {% csrf_token %}
+    <button type="submit">Confirmar Eliminação</button>
+    <a href="{% url 'product:product_list' %}">Cancelar</a>
+</form>

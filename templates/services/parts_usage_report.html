@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Relatório de Uso de Peças{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Relatório de Uso de Peças</h2>
+    <div>
+      <a href="{% url 'service:reports_dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" action="" class="row g-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data inicial" name="date_from" value="{{ request.GET.date_from }}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data final" name="date_to" value="{{ request.GET.date_to }}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-filter me-2"></i>Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted mb-1">Custo Total de Peças</h6>
+              <h3 class="fw-bold mb-0">R$ {{ total_parts_cost|floatformat:2 }}</h3>
+            </div>
+            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+              <i class="fas fa-cogs fa-2x text-primary"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Peças por Categoria</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="partsByCategoryChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de uso de peças -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Peças Utilizadas</h5>
+      <button class="btn btn-sm btn-outline-primary" onclick="exportTableToCSV('relatorio_pecas.csv')">
+        <i class="fas fa-download me-2"></i>Exportar CSV
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="partsTable">
+          <thead class="bg-light">
+            <tr>
+              <th class="border-0 ps-3">Peça</th>
+              <th class="border-0">Categoria</th>
+              <th class="border-0">Ordem de Serviço</th>
+              <th class="border-0">Veículo</th>
+              <th class="border-0">Quantidade</th>
+              <th class="border-0">Preço Unitário</th>
+              <th class="border-0 text-end pe-3">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for part in parts_usage %}
+            <tr>
+              <td class="ps-3">
+                <div class="d-flex align-items-center">
+                  <span class="me-2">
+                    <i class="fas fa-cog text-secondary"></i>
+                  </span>
+                  <span>{{ part.product.name_product }}</span>
+                </div>
+              </td>
+              <td>{{ part.product.product_type.name }}</td>
+              <td>
+                <a href="{% url 'service:service_order_detail' part.service_order.id %}" class="text-decoration-none">
+                  OS #{{ part.service_order.id }}
+                </a>
+              </td>
+              <td>{{ part.service_order.vehicle.brand.name }} {{ part.service_order.vehicle.vehicle_name }}</td>
+              <td>{{ part.quantity }}</td>
+              <td>R$ {{ part.unit_price }}</td>
+              <td class="text-end pe-3">R$ {{ part.total_price }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-search fa-3x mb-3"></i>
+                  <p>Nenhuma peça encontrada com os filtros selecionados.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Peças por Categoria
+    const partsByCategoryCtx = document.getElementById('partsByCategoryChart').getContext('2d');
+    const partsByCategoryChart = new Chart(partsByCategoryCtx, {
+      type: 'pie',
+      data: {
+        labels: [
+          {% for category in parts_by_category %}
+            '{{ category.product__product_type__name }}'{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        datasets: [{
+          data: [
+            {% for category in parts_by_category %}
+              {{ category.count }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ],
+          backgroundColor: [
+            '#0d6efd',
+            '#6610f2',
+            '#6f42c1',
+            '#d63384',
+            '#dc3545',
+            '#fd7e14',
+            '#ffc107',
+            '#198754',
+            '#20c997',
+            '#0dcaf0'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        }
+      }
+    });
+  });
+
+  function exportTableToCSV(filename) {
+    const table = document.getElementById('partsTable');
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+      const row = [], cols = rows[i].querySelectorAll('td, th');
+      
+      for (let j = 0; j < cols.length; j++) {
+        // Limpar o texto (remover espaços extras e quebras de linha)
+        let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').trim();
+        // Escapar aspas duplas
+        text = text.replace(/"/g, '""');
+        // Adicionar aspas ao redor do texto
+        row.push('"' + text + '"');
+      }
+      
+      csv.push(row.join(','));
+    }
+    
+    // Download CSV
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    
+    if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, filename);
+    } else {
+      const link = document.createElement('a');
+      if (link.download !== undefined) {
+        // Browsers that support HTML5 download attribute
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Adicionar Produto{% endblock %}
+{% block content %}
+<h1>Adicionar tipo de produto</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ new_product_type_form|crispy }}
+    <button type="submit" class="btn-save">💾 Guardar</button>
+    <a href="{% url 'product:product_list' %}" class="btn-cancel">Cancelar</a>
+</form>
+
+<hr>
+
+<!-- Select com os tipos de produto existentes -->
+<h5>Apagar Tipo de Produto</h5>
+<div class="mb-2">
+    <input type="text" id="filterInput" class="form-control" placeholder="🔍 Filtrar tipo de produto">
+</div>
+<div class="input-group mb-3">
+    
+  <select class="form-select" id="productTypeSelect">
+    <option value="" selected disabled>Selecione um tipo de produto</option>
+    {% for product in products_types %}
+      <option value="{{ product.id }}">{{ product.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-danger" type="button" onclick="DeleteProductTypeById()">🗑️ Apagar</button>
+</div>
+
+<script src="{% static "javascript/delete_product_type.js" %}"></script>
+<style src="{% static "css/style.css" %}"></style>
+{% endblock %}

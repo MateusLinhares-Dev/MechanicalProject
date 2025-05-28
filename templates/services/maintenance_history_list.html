@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Histórico de Manutenção{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Histórico de Manutenção</h2>
+    <a href="{% url 'service:maintenance_history_create' %}" class="btn btn-primary">
+      <i class="fas fa-plus-circle me-2"></i>Novo Registro de Manutenção
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" action="" class="row g-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data inicial" name="date_from" value="{{ request.GET.date_from }}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control border-0 bg-light" placeholder="Data final" name="date_to" value="{{ request.GET.date_to }}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select border-0 bg-light" name="vehicle">
+            <option value="">Todos os veículos</option>
+            {% for vehicle in vehicles %}
+              <option value="{{ vehicle.id }}" {% if request.GET.vehicle == vehicle.id|stringformat:"i" %}selected{% endif %}>{{ vehicle.brand.name }} {{ vehicle.vehicle_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-filter me-2"></i>Filtrar
+          </button>
+          <a href="{% url 'service:maintenance_history_list' %}" class="btn btn-outline-secondary ms-2">Limpar Filtros</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela de histórico de manutenção -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="border-0 ps-3">Veículo</th>
+              <th class="border-0">Data da Manutenção</th>
+              <th class="border-0">Quilometragem</th>
+              <th class="border-0">Próxima Manutenção</th>
+              <th class="border-0">Descrição</th>
+              <th class="border-0 text-end pe-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in history %}
+            <tr>
+              <td class="ps-3">
+                <div class="d-flex align-items-center">
+                  <span class="me-2">
+                    <i class="fas fa-car text-secondary"></i>
+                  </span>
+                  <span>{{ record.vehicle.brand.name }} {{ record.vehicle.vehicle_name }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border">
+                  <i class="far fa-calendar-alt me-1"></i>
+                  {{ record.maintenance_date|date:"d/m/Y" }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border">
+                  <i class="fas fa-tachometer-alt me-1"></i>
+                  {{ record.mileage }} km
+                </span>
+              </td>
+              <td>
+                {% if record.next_maintenance_date %}
+                <span class="badge bg-light text-dark border">
+                  <i class="far fa-calendar-alt me-1"></i>
+                  {{ record.next_maintenance_date|date:"d/m/Y" }}
+                </span>
+                {% endif %}
+                {% if record.next_maintenance_mileage %}
+                <span class="badge bg-light text-dark border">
+                  <i class="fas fa-tachometer-alt me-1"></i>
+                  {{ record.next_maintenance_mileage }} km
+                </span>
+                {% endif %}
+                {% if not record.next_maintenance_date and not record.next_maintenance_mileage %}
+                <span class="text-muted">Não definida</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 250px;">
+                  {{ record.description|truncatechars:50 }}
+                </span>
+              </td>
+              <td class="text-end pe-3">
+                <div class="btn-group">
+                  <a href="{% url 'service:maintenance_history_detail' record.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalhes">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-history fa-3x mb-3"></i>
+                  <p>Nenhum registro de manutenção encontrado.</p>
+                  <a href="{% url 'service:maintenance_history_create' %}" class="btn btn-sm btn-primary">Criar o primeiro registro</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

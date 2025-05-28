@@ -1,41 +1,192 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Produtos{% endblock %}
 
-{% block content %}
-<h1>Lista de Produtos</h1>
-<a href="{% url "product_create" %}" class="btn btn-success mb-3">+ Adicionar Produto</a>
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/style_robot.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_product.css' %}">
+{% endblock %}
 
-<table class="product-table">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Tipo do produto</th>
-            <th>Quantidade</th>
-            <th>Descrição</th>
-            <th>Criado em</th>
-            <th>Atualizado em</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for product in products %}
-        <tr>
-            <td>{{ product.name_product }}</td>
-            <td> {{ product.product_type.name }}</td>
-            <td>{{ product.quantity }}</td>
-            <td>{{ product.description }}</td>
-            <td>{{ product.created_at }}</td>
-            <td>{{ product.updated_at }}</td>
-            <td>
-                <a href="" class="btn-view">👁️</a>
-                <a href="" class="btn-edit">✏️</a>
-                <a href="" class="btn-delete">🗑️</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">Nenhum produto encontrado.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Produtos Cadastrados</h2>
+    <div>
+      <a href="{% url 'product:product_create' %}" class="btn btn-primary me-2">
+        <i class="fas fa-plus-circle me-2"></i>Adicionar Produto
+      </a>
+      <a href="{% url 'product:product_type_create' %}" class="btn btn-outline-primary">
+        <i class="fas fa-tags me-2"></i>Adicionar Categoria
+      </a>
+    </div>
+  </div>
+
+  <!-- Resumo rápido -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-gradient">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title text-muted">Total de Produtos</h5>
+              <p class="display-6 fw-bold text-primary mb-0">{{ products|length }}</p>
+            </div>
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+              <i class="fas fa-box-open fa-2x text-primary"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title text-muted">Categorias</h5>
+              <p class="display-6 fw-bold text-success mb-0">{{ product_types_count|default:"0" }}</p>
+            </div>
+            <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+              <i class="fas fa-tags fa-2x text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title text-muted">Estoque Baixo</h5>
+              <p class="display-6 fw-bold text-danger mb-0">{{ low_stock_count|default:"0" }}</p>
+            </div>
+            <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+              <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtro de pesquisa -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" action="{% url 'product:product_list' %}" class="row g-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control border-0 bg-light" placeholder="Nome do produto" name="name_product" value="{{ name_product|default:'' }}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-tag"></i></span>
+            <input type="text" class="form-control border-0 bg-light" placeholder="Marca do produto" name="brand_product" value="{{ brand_product|default:'' }}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-filter me-2"></i>Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sistema de notificação -->
+  <div id="robot-notification-container" class="robot-notification-container">
+    <div id="robot-arm" class="robot-arm">
+      <div id="robot-hand" class="robot-hand"></div>
+    </div>
+    <div id="robot-notification" class="robot-notification">
+      <div id="robot-message" class="robot-message"></div>
+    </div>
+  </div>
+
+  <div id="notification-container-stock-low" class="notification-container-stock-low">
+    <div id="notification-low" class="notification-low">
+      <div id="notification-message-product" class="notification-message-product"></div>
+    </div>
+  </div>
+
+  <!-- Tabela de produtos -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="border-0 ps-3">Nome</th>
+              <th class="border-0">Categoria</th>
+              <th class="border-0">Quantidade</th>
+              <th class="border-0">Descrição</th>
+              <th class="border-0">Criado em</th>
+              <th class="border-0">Atualizado em</th>
+              <th class="border-0 text-end pe-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+            <tr data-quantity="{{ product.quantity }}" data-name="{{ product.name_product }}">
+              <td class="ps-3">
+                <div class="d-flex align-items-center">
+                  <span class="me-2">
+                    <i class="fas fa-box text-secondary"></i>
+                  </span>
+                  <span class="fw-medium">{{ product.name_product }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark">{{ product.product_type.name }}</span>
+              </td>
+              <td>
+                <span class="badge {% if product.quantity <= 5 %}bg-danger{% elif product.quantity <= 10 %}bg-warning text-dark{% else %}bg-success{% endif %} rounded-pill px-3 py-2">
+                  {{ product.quantity }}
+                </span>
+              </td>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 150px;">{{ product.description|default:"Sem descrição" }}</span>
+              </td>
+              <td>
+                <small class="text-muted">{{ product.created_at|date:"d/m/Y H:i" }}</small>
+              </td>
+              <td>
+                <small class="text-muted">{{ product.updated_at|date:"d/m/Y H:i" }}</small>
+              </td>
+              <td class="text-end pe-3">
+                <div class="btn-group">
+                  <a href="{% url 'product:product_view' product.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalhes">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{% url 'product:product_update' product.id %}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ product.id }}" title="Remover">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-box-open fa-3x mb-3"></i>
+                  <p>Nenhum produto encontrado.</p>
+                  <a href="{% url 'product:product_create' %}" class="btn btn-sm btn-primary">Adicionar o primeiro produto</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'javascript/mechanic.js' %}"></script>
 {% endblock %}

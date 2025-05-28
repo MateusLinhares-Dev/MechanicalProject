@@ -16,8 +16,9 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'jazzmin',
-
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,7 +37,8 @@ INSTALLED_APPS = [
     'outflows',
     'inflows',
     'supplier',
-    'home'
+    'home',
+    'services'
 ]
 
 MIDDLEWARE = [
@@ -60,7 +62,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.contrib.messages.context_processors.messages'
             ],
         },
     },
@@ -228,6 +230,7 @@ JAZZMIN_SETTINGS = {
         "auth.Group": "fas fa-users",
         "vehicles.Vehicle": "fa-solid fa-car",
         "vehicles.VehiclesType": "fa-solid fa-car",
+        "vehicles.BrandTypes": "fa-solid fa-car",
         "supplier.Supplier": "fa-solid fa-truck-field",
         "inflows.Inflows": "fa-solid fa-circle-up",
         "outflows.Outflows": "fa-solid fa-circle-down",
@@ -284,3 +287,11 @@ REST_FRAMEWORK = {
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+ASGI_APPLICATION = 'core.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}

@@ -1,11 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalhes do Produto{% endblock %}
-{% block breadcrumbs %}Home > Produtos > Detalhes{% endblock %}
+{% block title %}Detalhes do product{% endblock %}
 {% block content %}
-<h1>{{ produto.nome }}</h1>
-<p><strong>Preço:</strong> € {{ produto.preco }}</p>
-<p><strong>Categoria:</strong> {{ produto.categoria }}</p>
-<p><strong>Descrição:</strong> {{ produto.descricao }}</p>
-<a href="{% url 'product_list' %}" class="btn-back">← Voltar</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Identificador</th>
+            <th scope="col">Nome do produto</th>
+            <th scope="col">Categoria</th>
+            <th scope="col">Quantidade</th>
+          </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>{{ product.id }}</th>
+            <td>{{ product.product_type.name }}</td>
+            <td>{{ product.name_product }}</td>
+            <td>{{ product.quantity }}</td>
+        </tr>
+        <tr>
+            
+        </tr>
+        <tr>
+            
+         </tr>
+    </tbody>
+</table>
+<div class="d-grid gap-2 col-1 mx-auto p-2">
+    <a href="{% url 'product:product_list' %}" class="btn btn-secondary">← Voltar</a>
+</div>
 {% endblock %}
