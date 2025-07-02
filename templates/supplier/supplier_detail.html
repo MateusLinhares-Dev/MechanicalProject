@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Fornecedor{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">{{ supplier.name }}</h2>
+    <div>
+      <a href="{% url 'supplier:supplier_edit' supplier.id %}" class="btn btn-primary me-2">
+        <i class="fas fa-edit me-2"></i>Editar
+      </a>
+      <a href="{% url 'supplier:supplier_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Informações do fornecedor -->
+    <div class="col-md-6 mb-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">Informações do Fornecedor</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="text-muted mb-1">Descrição</label>
+            <p class="mb-0 fw-medium">{{ supplier.description|default:"Sem descrição" }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="text-muted mb-1">Cadastrado em</label>
+            <p class="mb-0 fw-medium">{{ supplier.created_at|date:"d/m/Y H:i" }}</p>
+          </div>
+          <div>
+            <label class="text-muted mb-1">Última atualização</label>
+            <p class="mb-0 fw-medium">{{ supplier.updated_at|date:"d/m/Y H:i" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entradas de produtos deste fornecedor -->
+    <div class="col-md-6 mb-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Entradas de Produtos</h5>
+          <a href="{% url 'inflow:inflow_create' %}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-plus me-1"></i>Nova Entrada
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="border-0 ps-3">Produto</th>
+                  <th class="border-0">Quantidade</th>
+                  <th class="border-0">Data</th>
+                  <th class="border-0 text-end pe-3">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for inflow in inflows %}
+                <tr>
+                  <td class="ps-3">
+                    <div class="d-flex align-items-center">
+                      <span class="me-2">
+                        <i class="fas fa-box text-secondary"></i>
+                      </span>
+                      <span>{{ inflow.product.name_product }}</span>
+                    </div>
+                  </td>
+                  <td>{{ inflow.quantity }}</td>
+                  <td>{{ inflow.created_at|date:"d/m/Y" }}</td>
+                  <td class="text-end pe-3">
+                    <a href="{% url 'inflow:inflow_edit' inflow.id %}" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-4">
+                    <div class="text-muted">
+                      <p class="mb-0">Nenhuma entrada de produto registrada para este fornecedor.</p>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

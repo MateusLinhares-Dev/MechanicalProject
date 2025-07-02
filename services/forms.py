@@ -24,6 +24,11 @@ class ServiceScheduleForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['scheduled_date'].label = 'Data programada'
+        
 class ServiceOrderForm(forms.ModelForm):
     start_date = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
@@ -36,7 +41,12 @@ class ServiceOrderForm(forms.ModelForm):
         widgets = {
             'diagnosis': forms.Textarea(attrs={'rows': 3}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['start_date'].label = 'Data de inicio'
+        
 class ServiceItemForm(forms.ModelForm):
     class Meta:
         model = ServiceItem
@@ -73,3 +83,9 @@ class MaintenanceHistoryForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['next_maintenance_date'].label = 'Próxima data de manutenção'
+        self.fields['maintenance_date'].label = 'data da manutenção'

@@ -60,20 +60,12 @@
                 </span>
               </td>
               <td>
-                <span class="badge bg-light text-dark border">
                   <i class="far fa-clock me-1"></i>
-                  {% if service_type.estimated_time >= 60 %}
-                    {{ service_type.estimated_time|divisibleby:60 }} hora(s)
-                  {% else %}
                     {{ service_type.estimated_time }} minutos
-                  {% endif %}
-                </span>
               </td>
               <td>
-                <span class="badge bg-light text-dark border">
                   <i class="fas fa-tag me-1"></i>
                   R$ {{ service_type.price }}
-                </span>
               </td>
               <td class="text-end pe-3">
                 <div class="btn-group">

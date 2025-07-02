@@ -146,7 +146,7 @@
                     </div>
                   </td>
                   <td class="text-end">
-                    <span class="badge bg-primary rounded-pill">{{ part.total_usage }}</span>
+                    {{ part.total_usage }}
                   </td>
                 </tr>
                 {% empty %}
@@ -165,14 +165,13 @@
   </div>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Taxa de Conclusão
     const completionRateCtx = document.getElementById('completionRateChart').getContext('2d');
-    const completionRate = {{ completion_rate|floatformat:1 }};
+    const completionRate = parseFloat({{ completion_rate|floatformat:1}}).toString().replace(',', '.');
     const completionRateChart = new Chart(completionRateCtx, {
       type: 'doughnut',
       data: {
@@ -198,25 +197,18 @@
       }
     });
 
-    // Serviços por Mês
     const monthlyServicesCtx = document.getElementById('monthlyServicesChart').getContext('2d');
+    const monthly_data = {{ monthly_data|safe }};
+    const monthly_labels = {{ monthly_labels|safe }};
     const monthlyServicesChart = new Chart(monthlyServicesCtx, {
       type: 'bar',
       data: {
-        labels: [
-          {% for service in monthly_services reversed %}
-            '{{ service.month }}/{{ service.year }}'{% if not forloop.last %},{% endif %}
-          {% endfor %}
-        ],
+        labels: monthly_labels,
         datasets: [{
           label: 'Serviços',
-          data: [
-            {% for service in monthly_services reversed %}
-              {{ service.count }}{% if not forloop.last %},{% endif %}
-            {% endfor %}
-          ],
+          data: monthly_data,
           backgroundColor: '#0d6efd',
-          borderRadius: 4
+          borderRadius: 10
         }]
       },
       options: {
@@ -237,6 +229,6 @@
         }
       }
     });
-  });
+  })
 </script>
 {% endblock %}

@@ -113,7 +113,7 @@ def vehicle_create_view(request):
             vehicle.save()
             return redirect('vehicle:vehicles_list')
         else:
-            raise ValueError(form.errors)
+            return form.errors
     else:
         form = VehicleForm()
     return render(request, 'vehicles/create_vehicle.html', {'form':form, 'page_title':'Criar Veiculo'})

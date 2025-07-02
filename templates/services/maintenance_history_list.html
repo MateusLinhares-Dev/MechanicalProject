@@ -73,32 +73,24 @@
                 </div>
               </td>
               <td>
-                <span class="badge bg-light text-dark border">
                   <i class="far fa-calendar-alt me-1"></i>
                   {{ record.maintenance_date|date:"d/m/Y" }}
-                </span>
               </td>
               <td>
-                <span class="badge bg-light text-dark border">
                   <i class="fas fa-tachometer-alt me-1"></i>
-                  {{ record.mileage }} km
-                </span>
+                  <span>{{ record.mileage }} km</span>
               </td>
               <td>
                 {% if record.next_maintenance_date %}
-                <span class="badge bg-light text-dark border">
                   <i class="far fa-calendar-alt me-1"></i>
                   {{ record.next_maintenance_date|date:"d/m/Y" }}
-                </span>
                 {% endif %}
                 {% if record.next_maintenance_mileage %}
-                <span class="badge bg-light text-dark border">
                   <i class="fas fa-tachometer-alt me-1"></i>
                   {{ record.next_maintenance_mileage }} km
-                </span>
                 {% endif %}
                 {% if not record.next_maintenance_date and not record.next_maintenance_mileage %}
-                <span class="text-muted">Não definida</span>
+                Não definida
                 {% endif %}
               </td>
               <td>

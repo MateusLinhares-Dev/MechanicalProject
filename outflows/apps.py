@@ -6,6 +6,7 @@ class OutflowsConfig(AppConfig):
     name = 'outflows'
     verbose_name = 'Saída de produto'
     verbose_name_plural = 'Saída de produtos'
+    
 
     def ready(self):
         import outflows.signals

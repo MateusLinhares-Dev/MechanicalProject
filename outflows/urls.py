@@ -1,10 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from outflows.views import OutflowViewSet
+from django.urls import path
+from . import views
 
-router = DefaultRouter()
-router.register('outflows', OutflowViewSet)
+app_name = 'outflow'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', views.outflow_list, name='outflow_list'),
+    path('novo/', views.outflow_create, name='outflow_create'),
+    path('editar/<int:pk>/', views.outflow_edit, name='outflow_edit'),
+    path('excluir/<int:pk>/', views.outflow_delete, name='outflow_delete'),
 ]

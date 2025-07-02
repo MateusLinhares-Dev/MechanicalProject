@@ -114,13 +114,12 @@
               <td>{{ service.vehicle.owner.name }}</td>
               <td>{{ service.start_date|date:"d/m/Y" }}</td>
               <td>
-                <span class="badge 
-                  {% if service.status == 'aberto' %}bg-info
-                  {% elif service.status == 'em_andamento' %}bg-warning
-                  {% elif service.status == 'aguardando_pecas' %}bg-secondary
-                  {% elif service.status == 'aguardando_aprovacao' %}bg-primary
-                  {% elif service.status == 'concluido' %}bg-success
-                  {% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
+                  {% if service.status == 'aberto' %}
+                  {% elif service.status == 'em_andamento' %}
+                  {% elif service.status == 'aguardando_pecas' %}
+                  {% elif service.status == 'aguardando_aprovacao' %}
+                  {% elif service.status == 'concluido' %}
+                  {% else %}{% endif %}
                   {% if service.status == 'aberto' %}
                     Aberto
                   {% elif service.status == 'em_andamento' %}
@@ -134,7 +133,6 @@
                   {% else %}
                     Cancelado
                   {% endif %}
-                </span>
               </td>
               <td class="text-end pe-3">R$ {{ service.total_cost }}</td>
             </tr>
@@ -155,46 +153,5 @@
   </div>
 </div>
 
-<script>
-  function exportTableToCSV(filename) {
-    const table = document.getElementById('servicesTable');
-    let csv = [];
-    const rows = table.querySelectorAll('tr');
-    
-    for (let i = 0; i < rows.length; i++) {
-      const row = [], cols = rows[i].querySelectorAll('td, th');
-      
-      for (let j = 0; j < cols.length; j++) {
-        // Limpar o texto (remover espaços extras e quebras de linha)
-        let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').trim();
-        // Escapar aspas duplas
-        text = text.replace(/"/g, '""');
-        // Adicionar aspas ao redor do texto
-        row.push('"' + text + '"');
-      }
-      
-      csv.push(row.join(','));
-    }
-    
-    // Download CSV
-    const csvString = csv.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    
-    if (navigator.msSaveBlob) { // IE 10+
-      navigator.msSaveBlob(blob, filename);
-    } else {
-      const link = document.createElement('a');
-      if (link.download !== undefined) {
-        // Browsers that support HTML5 download attribute
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    }
-  }
-</script>
+<script src="{% static 'javascript/services_report.js' %}"></script>
 {% endblock %}

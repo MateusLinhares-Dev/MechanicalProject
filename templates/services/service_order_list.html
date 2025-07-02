@@ -98,39 +98,43 @@
                 </div>
               </td>
               <td>
-                <span class="badge bg-light text-dark border">
-                  <i class="far fa-calendar-alt me-1"></i>
-                  {{ order.start_date|date:"d/m/Y" }}
-                </span>
+                <div class="d-flex align-items-center">
+                    <i class="far fa-calendar-alt me-1"></i>
+                    <span>{{ order.start_date|date:"d/m/Y" }}</span>
+                </div>
               </td>
               <td>
-                <span class="badge 
-                  {% if order.status == 'aberto' %}bg-info
-                  {% elif order.status == 'em_andamento' %}bg-warning
-                  {% elif order.status == 'aguardando_pecas' %}bg-secondary
-                  {% elif order.status == 'aguardando_aprovacao' %}bg-primary
-                  {% elif order.status == 'concluido' %}bg-success
-                  {% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
-                  {% if order.status == 'aberto' %}
-                    <i class="fas fa-folder-open me-1"></i> Aberto
-                  {% elif order.status == 'em_andamento' %}
-                    <i class="fas fa-tools me-1"></i> Em andamento
-                  {% elif order.status == 'aguardando_pecas' %}
-                    <i class="fas fa-dolly me-1"></i> Aguardando Peças
-                  {% elif order.status == 'aguardando_aprovacao' %}
-                    <i class="fas fa-user-check me-1"></i> Aguardando Aprovação
-                  {% elif order.status == 'concluido' %}
-                    <i class="fas fa-check-circle me-1"></i> Concluído
-                  {% else %}
-                    <i class="fas fa-times-circle me-1"></i> Cancelado
-                  {% endif %}
-                </span>
+                <div class="d-flex align-items-center justify-content-center
+                    {% if order.status == 'aberto' %}bg-info
+                    {% elif order.status == 'em_andamento' %}bg-warning
+                    {% elif order.status == 'aguardando_pecas' %}bg-secondary
+                    {% elif order.status == 'aguardando_aprovacao' %}bg-primary
+                    {% elif order.status == 'concluido' %}bg-success
+                    {% else %}bg-danger{% endif %} rounded-pill px-2 py-1">
+                  <span class="text-white" style="font-size: 0.7rem;">
+                    {% if order.status == 'aberto' %}
+                      <i class="fas fa-folder-open me-1"></i> Aberto
+                    {% elif order.status == 'em_andamento' %}
+                      <i class="fas fa-tools me-1"></i> Em andamento
+                    {% elif order.status == 'aguardando_pecas' %}
+                      <i class="fas fa-dolly me-1"></i> Aguardando Peças
+                    {% elif order.status == 'aguardando_aprovacao' %}
+                      <i class="fas fa-user-check me-1"></i> Aguardando Aprovação
+                    {% elif order.status == 'concluido' %}
+                      <i class="fas fa-check-circle me-1"></i> Concluído
+                    {% else %}
+                      <i class="fas fa-times-circle me-1"></i> Cancelado
+                    {% endif %}
+                  </span>
+                </div>
               </td>
               <td>
-                <span class="badge bg-light text-dark border">
-                  <i class="fas fa-tag me-1"></i>
-                  R$ {{ order.total_cost }}
-                </span>
+                <div class="d-flex align-items-center">
+                  <span>
+                    <i class="fas fa-tag me-1"></i>
+                    R$ {{ order.total_cost }}
+                  </span>
+                </div>
               </td>
               <td class="text-end pe-3">
                 <div class="btn-group">

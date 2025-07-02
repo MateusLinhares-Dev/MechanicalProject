@@ -7,7 +7,7 @@ function DeleteProductTypeById(){
         return;
     }
 
-    fetch(`/product/product_type_delete/${selectedValueId}`, {
+    fetch(`/product/product_type_delete/${selectedValueId}/`, {
         method: "POST",
         headers: {
             "X-CSRFToken": getCookie("csrftoken"),

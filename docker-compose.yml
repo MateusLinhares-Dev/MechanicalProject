@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    container_name: my_docker_app
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1

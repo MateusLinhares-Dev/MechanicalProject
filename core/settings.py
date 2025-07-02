@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     
+    'authentication',
     'customers',
     'vehicles',
     'products',
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'authentication.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -295,3 +297,8 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
+
+# Configurações de autenticação
+LOGIN_URL = '/authentication/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/authentication/login/'

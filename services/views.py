@@ -5,8 +5,8 @@ from django.utils import timezone
 from .models import ServiceSchedule, ServiceOrder, ServiceItem, PartUsage, MaintenanceHistory, ServiceType
 from .forms import ServiceScheduleForm, ServiceOrderForm, ServiceItemForm, PartUsageForm, MaintenanceHistoryForm, ServiceTypeForm
 from vehicles.models import Vehicle
-from products.models import Product
 from datetime import datetime
+import json
 
 # Tipos de Serviços
 def service_type_list(request):
@@ -19,6 +19,7 @@ def service_type_list(request):
     
     context = {
         'service_types': service_types,
+        'page_title':'Tipo de serviços'
     }
     return render(request, 'services/service_type_list.html', context)
 
@@ -35,6 +36,7 @@ def service_type_create(request):
     context = {
         'form': form,
         'title': 'Novo Tipo de Serviço',
+        'page_title':'Novo tipo de serviço'
     }
     return render(request, 'services/service_type_form.html', context)
 
@@ -54,6 +56,7 @@ def service_type_edit(request, pk):
         'form': form,
         'service_type': service_type,
         'title': 'Editar Tipo de Serviço',
+        'page_title':'Editar tipo de serviço'
     }
     return render(request, 'services/service_type_form.html', context)
 
@@ -67,6 +70,7 @@ def service_type_delete(request, pk):
     
     context = {
         'service_type': service_type,
+        'page_title':'Deletar tipo de serviço'
     }
     return render(request, 'services/service_type_confirm_delete.html', context)
 
@@ -91,6 +95,7 @@ def schedule_list(request):
     context = {
         'schedules': schedules,
         'status_choices': ServiceSchedule.STATUS_CHOICES,
+        'page_title':'Listar datas'
     }
     return render(request, 'services/schedule_list.html', context)
 
@@ -119,6 +124,7 @@ def schedule_create(request):
     context = {
         'form': form,
         'title': 'Novo Agendamento',
+        'page_title':'Criar data'
     }
     return render(request, 'services/schedule_form.html', context)
 
@@ -126,6 +132,7 @@ def schedule_detail(request, pk):
     schedule = get_object_or_404(ServiceSchedule, pk=pk)
     context = {
         'schedule': schedule,
+        'page_title':'Detalhe data'
     }
     return render(request, 'services/schedule_detail.html', context)
 
@@ -145,6 +152,7 @@ def schedule_edit(request, pk):
         'form': form,
         'schedule': schedule,
         'title': 'Editar Agendamento',
+        'page_title':'Editar data'
     }
     return render(request, 'services/schedule_form.html', context)
 
@@ -158,6 +166,7 @@ def schedule_delete(request, pk):
     
     context = {
         'schedule': schedule,
+        'page_title':'Deletar data'
     }
     return render(request, 'services/schedule_confirm_delete.html', context)
 
@@ -187,6 +196,7 @@ def service_order_list(request):
         'orders': orders,
         'status_choices': ServiceOrder.STATUS_CHOICES,
         'vehicles': Vehicle.objects.all(),
+        'page_title':'Listar ordem de serviço'
     }
     return render(request, 'services/service_order_list.html', context)
 
@@ -217,6 +227,7 @@ def service_order_create(request):
     context = {
         'form': form,
         'title': 'Nova Ordem de Serviço',
+        'page_title':'Criar ordem de serviço'
     }
     return render(request, 'services/service_order_form.html', context)
 
@@ -236,6 +247,7 @@ def service_order_detail(request, pk):
         'services_total': services_total,
         'parts_total': parts_total,
         'grand_total': services_total + parts_total,
+        'page_title':'Detalhes do serviço'
     }
     return render(request, 'services/service_order_detail.html', context)
 
@@ -255,6 +267,7 @@ def service_order_edit(request, pk):
         'form': form,
         'order': order,
         'title': 'Editar Ordem de Serviço',
+        'page_title':'Editar ordem de serviço'
     }
     return render(request, 'services/service_order_form.html', context)
 
@@ -268,6 +281,7 @@ def service_order_delete(request, pk):
     
     context = {
         'order': order,
+        'page_title':'Deletar ordem de serviço'
     }
     return render(request, 'services/service_order_confirm_delete.html', context)
 
@@ -296,6 +310,7 @@ def add_service_item(request, pk):
         'form': form,
         'order': order,
         'title': 'Adicionar Serviço',
+        'page_title':'Adicionar serviço'
     }
     return render(request, 'services/service_item_form.html', context)
 
@@ -311,9 +326,10 @@ def add_part_usage(request, pk):
             # Verificar estoque
             product = part_usage.product
             if product.quantity < part_usage.quantity:
+                print('insuficiente')
                 messages.error(request, f'Estoque insuficiente! Disponível: {product.quantity}')
             else:
-                # Atualizar estoque
+          
                 product.quantity -= part_usage.quantity
                 product.save()
                 
@@ -334,14 +350,15 @@ def add_part_usage(request, pk):
         'form': form,
         'order': order,
         'title': 'Adicionar Peça',
+        'page_title':'Adicioanar peça'
+
     }
     return render(request, 'services/part_usage_form.html', context)
 
 # Histórico de Manutenção
 def maintenance_history_list(request):
     history = MaintenanceHistory.objects.all().order_by('-maintenance_date')
-    
-    # Filtros
+
     vehicle_id = request.GET.get('vehicle')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
@@ -354,10 +371,11 @@ def maintenance_history_list(request):
     
     if date_to:
         history = history.filter(maintenance_date__lte=date_to)
-    
+
     context = {
         'history': history,
         'vehicles': Vehicle.objects.all(),
+        'page_title':'Lista de manutenções'
     }
     return render(request, 'services/maintenance_history_list.html', context)
 
@@ -384,7 +402,7 @@ def maintenance_history_create(request):
     
     context = {
         'form': form,
-        'title': 'Novo Registro de Manutenção',
+        'title': 'Histórico de manutenção',
     }
     return render(request, 'services/maintenance_history_form.html', context)
 
@@ -392,6 +410,8 @@ def maintenance_history_detail(request, pk):
     history = get_object_or_404(MaintenanceHistory, pk=pk)
     context = {
         'history': history,
+        'page_title':'Adicionar Novo Produto'
+
     }
     return render(request, 'services/maintenance_history_detail.html', context)
 
@@ -407,7 +427,7 @@ def reports_dashboard(request):
     current_month = timezone.now().month
     current_year = timezone.now().year
     
-    monthly_services = []
+    monthly_services  = []
     for i in range(6):
         month = (current_month - i) % 12
         if month == 0:
@@ -424,6 +444,9 @@ def reports_dashboard(request):
             'year': year,
             'count': count
         })
+
+    labels = [f"{d['month']:02d}/{d['year']}" for d in reversed(monthly_services)]
+    data = [d['count'] for d in reversed(monthly_services)]
     
     # Peças mais utilizadas
     top_parts = PartUsage.objects.values(
@@ -438,8 +461,11 @@ def reports_dashboard(request):
         'total_completed': total_completed,
         'total_in_progress': total_in_progress,
         'completion_rate': (total_completed / total_services * 100) if total_services > 0 else 0,
-        'monthly_services': monthly_services,
+        'monthly_labels': json.dumps(labels),
+        'monthly_data': json.dumps(data),
         'top_parts': top_parts,
+        'page_title':'Dashboard de serviços'
+        
     }
     return render(request, 'services/reports_dashboard.html', context)
 
@@ -469,6 +495,7 @@ def services_report(request):
         'total_revenue': total_revenue,
         'avg_service_cost': avg_service_cost,
         'status_choices': ServiceOrder.STATUS_CHOICES,
+        'page_title':'Relatório de serviços'
     }
     return render(request, 'services/services_report.html', context)
 
@@ -498,6 +525,7 @@ def parts_usage_report(request):
         'parts_usage': parts_usage,
         'total_parts_cost': total_parts_cost,
         'parts_by_category': parts_by_category,
+        'page_title':'Relatório de uso de peças'
     }
     return render(request, 'services/parts_usage_report.html', context)
 
@@ -509,8 +537,7 @@ def vehicles_maintenance_report(request):
     
     if vehicle_id:
         vehicles = vehicles.filter(id=vehicle_id)
-    
-    # Preparar dados para cada veículo
+
     vehicle_data = []
     for vehicle in vehicles:
         maintenance_records = MaintenanceHistory.objects.filter(vehicle=vehicle).order_by('-maintenance_date')
@@ -529,5 +556,6 @@ def vehicles_maintenance_report(request):
     context = {
         'vehicle_data': vehicle_data,
         'vehicles': vehicles,
+        'page_title':'Veiculos em manutenção'
     }
     return render(request, 'services/vehicles_maintenance_report.html', context)

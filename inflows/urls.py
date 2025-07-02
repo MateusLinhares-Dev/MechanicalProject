@@ -1,10 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from inflows.views import InflowViewSet
+from django.urls import path
+from . import views
 
-router = DefaultRouter()
-router.register('inflows', InflowViewSet)
+app_name = 'inflow'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', views.inflow_list, name='inflow_list'),
+    path('novo/', views.inflow_create, name='inflow_create'),
+    path('editar/<int:pk>/', views.inflow_edit, name='inflow_edit'),
+    path('excluir/<int:pk>/', views.inflow_delete, name='inflow_delete'),
 ]

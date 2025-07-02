@@ -157,21 +157,18 @@
               </td>
               <td>{{ schedule.service_type.name }}</td>
               <td>
-                <span class="badge bg-light text-dark border">
+    
                   <i class="far fa-calendar-alt me-1"></i>
                   {{ schedule.scheduled_date|date:"d/m/Y" }}
-                </span>
-                <span class="badge bg-light text-dark border">
+
                   <i class="far fa-clock me-1"></i>
                   {{ schedule.scheduled_date|date:"H:i" }}
-                </span>
               </td>
               <td>
-                <span class="badge 
-                  {% if schedule.status == 'agendado' %}bg-info
-                  {% elif schedule.status == 'em_andamento' %}bg-warning
-                  {% elif schedule.status == 'concluido' %}bg-success
-                  {% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
+                  {% if schedule.status == 'agendado' %}
+                  {% elif schedule.status == 'em_andamento' %}
+                  {% elif schedule.status == 'concluido' %}
+                  {% else %}bg-danger{% endif %}
                   {% if schedule.status == 'agendado' %}
                     <i class="fas fa-calendar-check me-1"></i> Agendado
                   {% elif schedule.status == 'em_andamento' %}
@@ -181,7 +178,6 @@
                   {% else %}
                     <i class="fas fa-times-circle me-1"></i> Cancelado
                   {% endif %}
-                </span>
               </td>
               <td class="text-end pe-3">
                 <div class="btn-group">
